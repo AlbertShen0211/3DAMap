@@ -1,0 +1,84 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+apply plugin: 'com.android.application'
+/*  移除冲突依赖*/
+configurations {
+    all*.exclude group:'com.amap.api', module: 'location'
+
+}
+dependencies {
+    //implementation files('libs/Android_Map3D_SDK_V9.0.0_20220113.jar')
+   // implementation fileTree(include: '*.jar', dir: 'libs')
+    //noinspection GradleCompatible
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    //noinspection GradleCompatible
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    //高德地图sdk
+    api 'com.amap.api:navi-3dmap:latest.integration'//3D地图so及jar
+    api 'com.amap.api:location:latest.integration'  //定位功能
+}
+
+android {
+    def DEF_KEYSTORE_FILE_URL = './demo.jks'
+    def DEF_KEYSTORE_PASSWORD = "demo"
+    def DEF_KEY_ALIAS = "demo"
+    def DEF_KEY_PASSWORD = "demo"
+
+    compileSdkVersion 30
+    buildToolsVersion '30.0.2'
+    defaultConfig {
+        applicationId "com.demo.test"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    signingConfigs {
+        haier {
+            v1SigningEnabled true
+            storeFile file(project.hasProperty('STORE_FILE_PATH') ? STORE_FILE_PATH : DEF_KEYSTORE_FILE_URL)
+            storePassword project.hasProperty('STORE_PASSWORD') ? STORE_PASSWORD : DEF_KEYSTORE_PASSWORD
+            keyAlias project.hasProperty('KEY_ALIAS') ? KEY_ALIAS : DEF_KEY_ALIAS
+            keyPassword project.hasProperty('KEY_PASSWORD') ? KEY_PASSWORD : DEF_KEY_PASSWORD
+            println("-------DEF_KEYSTORE_FILE_URL-----------"+DEF_KEYSTORE_FILE_URL)
+            println("-------DEF_KEYSTORE_PASSWORD-----------"+DEF_KEYSTORE_PASSWORD)
+            println("-------DEF_KEY_ALIAS-----------"+DEF_KEY_ALIAS)
+        }
+    }
+
+    buildTypes {
+        debug {
+            println("-------debug-----------")
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.haier
+        }
+
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+
+
+        // Move the tests to tests/java, tests/res, etc...
+//        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+}
+
